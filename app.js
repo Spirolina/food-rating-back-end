@@ -19,4 +19,10 @@ app.get('/', (req, res) => {
     res.send('hello world')
 })
 
+app.get('/admin', (req, res) => {
+    res.json({admins: ['kaan', 'arda']})
+})
+
+
+next(new Error('not permitted'))
 export default app
