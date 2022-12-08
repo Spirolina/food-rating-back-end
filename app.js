@@ -1,6 +1,7 @@
 import  express  from 'express'
 import bodyParser from 'body-parser'
 import cors from 'cors'
+import ErrorHandler from './middlewares/ErrorHandler.js';
 
 const corsOptions = {
     origin: '*',
@@ -22,6 +23,8 @@ app.get('/', (req, res) => {
 app.get('/admin', (req, res) => {
     res.json({admins: ['kaan', 'arda']})
 })
+
+app.use(ErrorHandler)
 
 
 export default app
