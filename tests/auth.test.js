@@ -1,12 +1,13 @@
 import mongoose from "mongoose";
 import request from 'supertest';
 import app from "../app.js";
-import { genPassword, validPassword } from "../modules/Auth.js";
+import { genPassword, issueJwt, validPassword } from "../modules/Auth.js";
 import 'dotenv/config'
 
 const samplePassword = '123456';
 const wrongPassword = 'wrong';
-let passObj = { salt:null, hash:null };
+let passObj = { salt: null, hash: null };
+let tokenObj = {token: null, expiresIn: null}
 
 beforeEach(async () => {
     await mongoose.connect(process.env.MONGODB_URI);
@@ -39,6 +40,13 @@ describe('validPassword() function', () => {
     })
 })
 
+describe('issueJwt() function', () => {
+    it('should return an object with bearer token and expire time', () => {
+        tokenObj = issueJwt(user);
+        expect(tokenObj.token).toBeDefined();
+        expect(tokenObj.expiresIn).toBeDefined();
+    })
+})
 
 
 afterEach(async () => {
