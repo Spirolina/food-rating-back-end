@@ -24,5 +24,4 @@ app.get('/admin', (req, res) => {
 })
 
 
-next(new Error('not permitted'))
 export default app

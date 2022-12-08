@@ -1,13 +1,15 @@
 import app from "./app.js"
 import mongoose from "mongoose";
-import 'dotenv/config';
-mongoose.set('strictQuery', true)
+import { connectDb } from "./configs/mongoDbConfig.js";
 
-mongoose
-  .connect(process.env.MONGODB_URI)
-  .then(() => {
+try {
+  const db = await connectDb();
+  if (db) {
     app.listen(process.env.PORT || 5000, console.log("Server started on port 5000"));
-  })
-  .catch((err) => {
-    console.log(err);
-  });
+
+  }
+
+} catch (err) {
+  console.log(err);
+}
+
