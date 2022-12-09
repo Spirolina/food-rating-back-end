@@ -3,6 +3,8 @@ import User from '../models/User.js';
 import 'dotenv/config';
 
 const JwtStrategy = passportJwt.Strategy;
+
+
 const { ExtractJwt } = passportJwt;
 
 const PUB_KEY = process.env.PUBLIC_KEY;
@@ -25,6 +27,10 @@ const strategy = new JwtStrategy(opts, (payload, done) => {
     .catch((err) => done(err, null));
 });
 
+
+
+
 export default (passport) => {
-  passport.use(strategy);
+    passport.use(strategy);
+    
 };
