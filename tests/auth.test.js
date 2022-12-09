@@ -3,14 +3,45 @@ import request from 'supertest';
 import app from "../app.js";
 import { genPassword, issueJwt, validPassword } from "../modules/Auth.js";
 import 'dotenv/config'
+import User from "../models/User.js";
+import { connectDb } from "../configs/mongoDbConfig.js";
 
 const samplePassword = '123456';
 const wrongPassword = 'wrong';
 let passObj = { salt: null, hash: null };
-let tokenObj = {token: null, expiresIn: null}
+let tokenObj = { token: null, expires: null }
+let user;
+let db;
 
-beforeAll(async () => {
-    await mongoose.connect(process.env.MONGODB_TESTING_URI);
+const initializeDb = () => {
+    return new Promise(async (resolve, reject) => {
+        db = await connectDb(process.env.MONGODB_TESTING_URI)
+        if (db) {
+            const tempUser = new User({
+                username: 'example',
+                email: 'examplemail@gmail.com'
+            });
+            tempUser.save((err, result) => {
+                if (!err) {
+                    user = result;
+                    resolve()
+                }
+            });
+        };
+    });
+};
+
+const clearDb = () => {
+    return new Promise((resolve, reject) => {
+        User.deleteMany({}, async (err, result) => {
+            await db.connection.close();
+            resolve();
+        });
+    })
+}
+
+beforeAll( () => {
+    return initializeDb();
 });
 
 describe("GET /", () => {
@@ -20,16 +51,29 @@ describe("GET /", () => {
     })
 })
 
-describe('POST /api/users/login',  () => {
-    it('should create user in databse proper username and proper password', async () => {
-        const res = await request(app)
-            .post('/api/users/signup')
-            .send({
-                username: 'unique',
-                password: '123456'
-            })
-    })
-})
+
+
+// describe('POST /api/users/login',  () => {
+//     it('should create user in databse proper username and proper password', async () => {
+//         const res = await request(app)
+//             .post('/api/users/signup')
+//             .send({
+//                 username: 'unique',
+//                 password: '123456'
+//             })
+//         expect(res.statusCode).toBe(200);
+//         expect(res.body.success).toEqual(true);
+//         expect(res.body.message).toEqual('account created');
+//         expect(res.body.token).toBeDefined();
+
+//         // Check is token valid
+//         const checkRes = await request(app)
+//             .post('api/token')
+//             .send({ token: res.body.token });
+//         expect(checkRes.body.result).toEqual(true);
+        
+//     })
+// })
 
 describe('getPasword() function', () => {
     it("generate salt hash", () => {
@@ -53,11 +97,32 @@ describe('validPassword() function', () => {
 
 describe('issueJwt() function', () => {
     it('should return an object with bearer token and expire time', () => {
-        //will be implemented
+       
+        tokenObj = issueJwt(user);
+        expect(tokenObj.token).toBeDefined();
+        expect(tokenObj.expires).toBeDefined();
     })
 })
 
+// describe('POST /api/token', () => {
+//     it('return true if token is valid', async () => {
+//         const res = await request(app)
+//             .post('/api/token')
+//             .send({ token: tokenObj.token })
+//         expect(res.statusCode).toBe(200);
+//         expect(res.body.result).toEqual(true);
+//     })
 
-afterAll(async () => {
-    await mongoose.connection.close();
-  });
+//     it('return false if token is invalid', async () => {
+//         const res = await request(app)
+//             .post('/api/token')
+//             .send({ token: 'wrongtokken'})
+//         expect(res.statusCode).toBe(200);
+//         expect(res.body.result).toEqual(false);
+//     })
+// })
+
+
+afterAll(() => {
+    return clearDb()
+});

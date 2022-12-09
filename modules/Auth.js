@@ -25,5 +25,25 @@ export const validPassword = (password, hash, salt) => {
 }
 
 export const issueJwt = (user) => {
-    // will be implemented
+    const { _id, username } = user;
+    const expiresIn = '1m';
+    const payload = {
+        sub: _id,
+        username,
+        iat: Date.now(),
+    }
+
+    const signedToken = jwt.sign(
+        payload,
+        { key: PRIV_KEY, passphrase: process.env.PASSPHRASE },
+        {
+            expiresIn,
+            algorithm: 'RS256'
+        }
+    )
+
+    return {
+        token: `Bearer ${signedToken}`,
+        expires: expiresIn
+    }
 }
