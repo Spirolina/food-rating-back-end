@@ -9,7 +9,7 @@ const wrongPassword = 'wrong';
 let passObj = { salt: null, hash: null };
 let tokenObj = {token: null, expiresIn: null}
 
-beforeEach(async () => {
+beforeAll(async () => {
     await mongoose.connect(process.env.MONGODB_URI);
 });
 
@@ -17,6 +17,17 @@ describe("GET /", () => {
     it("should write hello world", async () => {
         const res = await request(app).get("/");
         expect(res.statusCode).toBe(200);
+    })
+})
+
+describe('POST /api/users/login',  () => {
+    it('should create user in databse proper username and proper password', async () => {
+        const res = await request(app)
+            .post('/api/users/signup')
+            .send({
+                username: 'unique',
+                password: '123456'
+            })
     })
 })
 
@@ -42,13 +53,11 @@ describe('validPassword() function', () => {
 
 describe('issueJwt() function', () => {
     it('should return an object with bearer token and expire time', () => {
-        tokenObj = issueJwt(user);
-        expect(tokenObj.token).toBeDefined();
-        expect(tokenObj.expiresIn).toBeDefined();
+        //will be implemented
     })
 })
 
 
-afterEach(async () => {
+afterAll(async () => {
     await mongoose.connection.close();
   });
