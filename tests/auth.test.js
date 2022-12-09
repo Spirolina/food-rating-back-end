@@ -10,7 +10,7 @@ let passObj = { salt: null, hash: null };
 let tokenObj = {token: null, expiresIn: null}
 
 beforeAll(async () => {
-    await mongoose.connect(process.env.MONGODB_URI);
+    await mongoose.connect(process.env.MONGODB_TESTING_URI);
 });
 
 describe("GET /", () => {
