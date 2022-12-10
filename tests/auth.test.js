@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 import request from 'supertest';
 import app from "../app.js";
-import { genPassword, issueJwt, validPassword } from "../modules/Auth.js";
+import { genPassword, issueJwt, validPassword, validToken } from "../modules/Auth.js";
 import 'dotenv/config'
 import User from "../models/User.js";
 import { connectDb } from "../configs/mongoDbConfig.js";
@@ -54,7 +54,7 @@ describe("GET /", () => {
 
 
 // describe('POST /api/users/login',  () => {
-//     it('should create user in databse proper username and proper password', async () => {
+//     it('should create user in databse proper username and proper password, return valid token', async () => {
 //         const res = await request(app)
 //             .post('/api/users/signup')
 //             .send({
@@ -75,7 +75,7 @@ describe("GET /", () => {
 //     })
 // })
 
-describe('getPasword() function', () => {
+describe('genPasword() function', () => {
     it("generate salt hash", () => {
         passObj  = genPassword(samplePassword);
         expect(passObj.salt).toBeDefined();
@@ -104,23 +104,41 @@ describe('issueJwt() function', () => {
     })
 })
 
-// describe('POST /api/token', () => {
-//     it('return true if token is valid', async () => {
-//         const res = await request(app)
-//             .post('/api/token')
-//             .send({ token: tokenObj.token })
-//         expect(res.statusCode).toBe(200);
-//         expect(res.body.result).toEqual(true);
-//     })
+describe('validToken() function', () => {
+    it('should return true if token is valid', () => {
+        const result = validToken(tokenObj.token, user._id);
+        expect(result).toBe(true);
+    })
 
-//     it('return false if token is invalid', async () => {
-//         const res = await request(app)
-//             .post('/api/token')
-//             .send({ token: 'wrongtokken'})
-//         expect(res.statusCode).toBe(200);
-//         expect(res.body.result).toEqual(false);
-//     })
-// })
+    it('should return false if token is invalid', () => {
+        const result = validToken('wrongtoken', user._id);
+        expect(result).toBe(false);
+    })
+
+    it('should return false if user id is wrong', () => {
+        const result = validToken(tokenObj.token, '25345324534');
+        expect(result).toBe(false);
+    })
+})
+
+describe('POST /api/token', () => {
+    it('return true if token is valid', async () => {
+        const res = await request(app)
+            .post('/api/token')
+            .send({ token: tokenObj.token, user:user,})
+        expect(res.statusCode).toBe(200);
+        
+    })
+
+    it('return false if token is invalid', async () => {
+        const res = await request(app)
+            .post('/api/token')
+            .send({ token: 'wrongtokken', user:user, })
+        
+        expect(res.statusCode).toBe(401);
+        
+    })
+})
 
 
 afterAll(() => {

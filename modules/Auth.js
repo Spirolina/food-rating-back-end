@@ -1,8 +1,10 @@
 import crypto from 'crypto'
 import jwt from 'jsonwebtoken'
 import 'dotenv/config'
+import { nextTick } from 'process';
 
 const PRIV_KEY = process.env.PRIVATE_KEY;
+const PUB_KEY = process.env.PUBLIC_KEY;
 
 export const genPassword = (password) => {
     const salt = crypto
@@ -46,4 +48,16 @@ export const issueJwt = (user) => {
         token: `Bearer ${signedToken}`,
         expires: expiresIn
     }
+}
+
+export const validToken = (token, _id) => {
+    token = token.split(' ')[1];
+    _id = _id.toString()
+    
+    return jwt.verify(token, PUB_KEY, { algorithms: ['RS256'], subject: _id }, (err, decode) => {
+        if (err) {
+            return false;
+        }
+        return true;
+    });
 }
