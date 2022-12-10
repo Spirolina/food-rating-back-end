@@ -1,11 +1,11 @@
-import  express  from 'express'
+import express from 'express'
 import bodyParser from 'body-parser'
 import cors from 'cors'
 import ErrorHandler from './middlewares/ErrorHandler.js';
 import apiRoutes from './routes/api.js'
 import passport from 'passport';
 import authConfigs from './configs/authConfigs.js';
-
+import passportConfigs from './configs/passport.js';
 
 const corsOptions = {
     origin: '*',
@@ -22,11 +22,14 @@ app.use(express.urlencoded({ extended: true }));
 
 //init passport-js and jwt
 authConfigs(passport);
+passportConfigs(passport)
 app.use(passport.initialize());
 
-app.use('/api',apiRoutes);
+
+
+app.use('/api', apiRoutes);
 app.get('/', (req, res) => {
-    res.send('hello world')
+    res.send('oh')
 })
 
 

@@ -1,7 +1,11 @@
 import app from "./app.js"
 import mongoose from "mongoose";
 import { connectDb } from "./configs/mongoDbConfig.js";
+import dotenv from 'dotenv';
+import passport from 'passport'
 import 'dotenv/config'
+
+
 
 try {
   const db = await connectDb(process.env.MONGODB_URI);
