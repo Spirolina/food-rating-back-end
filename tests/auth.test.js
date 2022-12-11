@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 import request from 'supertest';
 import app from "../app.js";
-import { genPassword, issueJwt, validPassword, validToken } from "../modules/Auth.js";
+import { genPassword, issueJwt, validEmail, validPassword, validToken } from "../modules/Auth.js";
 import 'dotenv/config'
 import User from "../models/User.js";
 import { connectDb } from "../configs/mongoDbConfig.js";
@@ -53,27 +53,32 @@ describe("GET /", () => {
 
 
 
-// describe('POST /api/users/login',  () => {
-//     it('should create user in databse proper username and proper password, return valid token', async () => {
-//         const res = await request(app)
-//             .post('/api/users/signup')
-//             .send({
-//                 username: 'unique',
-//                 password: '123456'
-//             })
-//         expect(res.statusCode).toBe(200);
-//         expect(res.body.success).toEqual(true);
-//         expect(res.body.message).toEqual('account created');
-//         expect(res.body.token).toBeDefined();
+describe('POST /api/users/signup',  () => {
+    it('should create user in databse proper username and proper password, return valid token', async () => {
+        const res = await request(app)
+            .post('/api/users/signup')
+            .send({
+                username: 'unique',
+                password: '123456',
+                email: 'g.isik.arda@gmail.com',
+                name: 'arda',
+                surname: 'isik'
 
-//         // Check is token valid
-//         const checkRes = await request(app)
-//             .post('api/token')
-//             .send({ token: res.body.token });
-//         expect(checkRes.body.result).toEqual(true);
-        
-//     })
-// })
+            })
+        expect(res.statusCode).toBe(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body.message).toEqual('account created');
+        expect(res.body.tokenObj).toBeDefined();
+
+    })
+
+    // these tests will be implemented
+    it('should not create new account if username exists');
+    it('should not create improper email');
+    it('should exist unique username in db');
+    it('should baerer token valid');
+
+})
 
 describe('genPasword() function', () => {
     it("generate salt hash", () => {
@@ -118,6 +123,13 @@ describe('validToken() function', () => {
     it('should return false if user id is wrong', () => {
         const result = validToken(tokenObj.token, '25345324534');
         expect(result).toBe(false);
+    })
+})
+
+describe('validEmail() function', () => {
+    it('should return true if email is true', () => {
+        const valid = validEmail('g.isik.arda@gmail.com');
+        expect(valid).toBe(true);
     })
 })
 

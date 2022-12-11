@@ -1,8 +1,7 @@
 import crypto from 'crypto'
 import jwt from 'jsonwebtoken'
 import 'dotenv/config'
-import { nextTick } from 'process';
-
+import validator from 'email-validator'
 const PRIV_KEY = process.env.PRIVATE_KEY;
 const PUB_KEY = process.env.PUBLIC_KEY;
 
@@ -60,4 +59,9 @@ export const validToken = (token, _id) => {
         }
         return true;
     });
+}
+
+export const validEmail =  (email) => {
+    return validator.validate(email)
+    
 }
